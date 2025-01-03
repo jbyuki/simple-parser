@@ -18,3 +18,8 @@ const result = parser.parse("2*5+2*6"); // => [["Expr", 40]]
 ```
 
 Work in progress.
+
+Todo
+----
+
+* [ ] Optimized parser ( O(n) time complexity )
