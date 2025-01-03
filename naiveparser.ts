@@ -493,16 +493,16 @@ class Parser {
 }
 
 const g = new Grammar("Top");
-g["Top"] = ["ws* (Expr) ws*", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["(Expr) ws* '+' ws* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) ws* '-' ws* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
-g["Expr"] = ["(Expr) ws* '*' ws* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["(Expr) ws* '/' ws* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
-g["Expr"] = ["'(' ws* (Expr) ws* ')'", (cap : any[]) => { return cap[0]; }];
+g["Top"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["(Expr) s* '+' s* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) s* '-' s* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Expr"] = ["(Expr) s* '*' s* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["(Expr) s* '/' s* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Expr"] = ["'(' s* (Expr) s* ')'", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["'(' '-' (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
-g["ws"] = ["'% '", (_: any[]) => { }];
+g["s"] = ["' '", (_: any[]) => { }];
 
 const parser = new Parser(g);
 
