@@ -31,17 +31,17 @@ class Grammar {
 }
 
 ;; layout grammar rules
-const g = new Grammar("Expr");
-g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) '-' (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
-g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["(Expr) '/' (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
-g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["'(' s* '-' s* (Num) ')'", (cap : any[]) => { return -cap[0]; }];
+const g = new Grammar("Exp");
+g["Exp"] = ["(Exp) '+' (Exp)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Exp"] = ["(Exp) '-' (Exp)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Exp"] = ["(Exp) '*' (Exp)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Exp"] = ["(Exp) '/' (Exp)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Exp"] = ["'(' (Exp) ')'", (cap : any[]) => { return cap[0]; }];
+g["Exp"] = ["s* (Exp) s*", (cap : any[]) => { return cap[0]; }];
+g["Exp"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
+g["Exp"] = ["'(' s* '-' s* (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
-g["s"] = ["' '", (_: any[]) => { }];
+g["s"]   = ["' '", (_: any[]) => { }];
 
 ;; rule list
 startRule : string;
