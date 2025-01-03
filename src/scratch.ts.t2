@@ -1,0 +1,39 @@
+:: scratch.ts
+; define abstract class
+; define concrete class
+; define array
+; check array
+
+;; define abstract class
+abstract class Token {
+}
+
+;; define concrete class
+class SingleCharToken extends Token {
+	c : string;
+}
+
+;; define concrete class
+class RangeToken extends Token {
+	start : string;
+	stop : string;
+}
+
+;; define array
+const tokens : Array<Token> = [];
+tokens.push(new SingleCharToken());
+tokens.push(new RangeToken());
+
+let c = tokens[0];
+if(c instanceof SingleCharToken) {
+	console.log(c);
+} else {
+	console.log("FAIL");
+}
+
+c = tokens[1];
+if(c instanceof RangeToken) {
+	console.log(c);
+} else {
+	console.log("FAIL");
+}

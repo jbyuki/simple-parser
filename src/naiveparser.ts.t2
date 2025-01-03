@@ -1,0 +1,575 @@
+:: ../naiveparser.ts
+; custom errors
+; token class
+; rule class
+; grammar class
+; parser class
+; layout grammar rules
+; create parser
+; test parser
+
+;; grammar class
+class Grammar {
+	; rule list
+	; rule counter
+
+	constructor(start : string) {
+		; set start rule
+		return new Proxy(this, {
+			set(source, key: string, rhs: [string, (...args: any[]) => any]) {
+				const value = rhs[0];
+				; parse rule
+				; add rule to rule list
+				; add rule counter
+				return true;
+			}
+		});
+	}
+
+	; check defined function
+}
+
+;; layout grammar rules
+const g = new Grammar("Expr");
+g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
+g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
+
+;; rule list
+startRule : string;
+
+;; set start rule
+this.startRule = start;
+
+;; parse rule
+let i = 0;
+; parse rule states
+; parse rule functions
+
+; skip white spaces
+while(i < value.length) {
+	; parse next token
+	; skip white spaces
+}
+
+;; parse rule functions
+const skipws = () => {
+	while(i < value.length && /\s/.test(value[i])) {
+		++i;
+	}
+};
+
+;; skip white spaces
+skipws();
+
+;; parse next token
+if(check('(')) {
+	next();
+	skipws();
+	if(check('\'')) {
+		; parse terminal
+	} else if(check(/[a-zA-Z]/)) {
+		; parse non terminal
+	} else {
+		; unexpected char
+	}
+	; parse operator if present
+	skipws();
+	expect(')');
+	; set capture to true
+} else {
+	if(check('\'')) {
+		; parse terminal
+	} else if(check(/[a-zA-Z]/)) {
+		; parse non terminal
+	} else {
+		; unexpected char
+	}
+	; parse operator if present
+	; set capture to false
+}
+
+;; parse rule functions
+const check = (c: string | RegExp) => {
+	if(typeof c == "string") {
+		if(i < value.length && value[i] == c) {
+			return true;
+		}
+		return false;
+	} else {
+		if(i < value.length && c.test(value[i])) {
+			return true;
+		}
+		return false;
+	}
+};
+
+;; custom errors
+class UnexpectedRuleEnd extends Error {
+	constructor(ruleNumber : number, rule : string) {
+		super(`Unexpected end in rule #${ruleNumber} '${rule}'`);
+		this.name = "UnexpectedRuleEnd";
+	}
+}
+
+;; rule counter
+ruleCounter : number = 1;
+
+;; add rule counter
+source.ruleCounter++;
+
+;; custom errors
+class UnexpectedRuleChar extends Error {
+	constructor(ruleNumber: number, rule: string, char: string) {
+		super(`Unexpected char '${char}' in rule #${ruleNumber} '${rule}'`);
+		this.name = "UnexpectedRuleChar";
+	}
+}
+
+;; parse rule functions
+const unexpectedChar = () : never => {
+	if(i >= value.length) {
+		throw new UnexpectedRuleEnd(source.ruleCounter, value);
+	} else {
+		throw new UnexpectedRuleChar(source.ruleCounter, value, value[i]);
+	}
+};
+
+;; unexpected char
+unexpectedChar();
+
+;; parse rule functions
+const expect = (c : string) => {
+	if(i < value.length && value[i] == c) {
+		++i;
+	} else if(i < value.length) {
+		throw new UnexpectedRuleChar(source.ruleCounter, value, value[i]);
+	} else {
+		throw new UnexpectedRuleEnd(source.ruleCounter, value);
+	}
+};
+
+;; parse terminal
+expect('\'');
+terminal();
+expect('\'');
+
+;; parse rule functions
+const checkNot = (c: string) => {
+	if(i < value.length && value[i] != c) {
+		return true;
+	}
+	return false;
+};
+
+;; parse rule functions
+const terminal = () => {
+	if(check('[')) {
+		expect('[');
+		; parse terminal group
+		expect(']');
+	} else if(checkNot('\'')) {
+		; parse terminal char
+	} else {
+		; unexpected char
+	}
+};
+
+;; parse rule states
+const ruleTokens : Array<RuleToken> = [];
+
+;;- token class
+const enum RuleTokenOperator {
+	None,
+	; rule token operator
+};
+
+abstract class RuleToken {
+	op: RuleTokenOperator = RuleTokenOperator.None;
+	; capture boolean
+}
+
+;; token class
+class RuleCharToken extends RuleToken {
+	c: string;
+	constructor(c : string) { super(); this.c = c; }
+}
+
+;; parse rule functions
+const token = <T extends RuleToken>(type: { new(...args: any[]): T; }, ...args : any[]) => {
+	ruleTokens.push(new type(...args));
+};
+
+const next = (n : number = 1) => {
+	i += n;
+};
+
+;; parse rule functions
+const done = () => {
+	return i >= value.length;
+};
+
+const magicChar = () : string | never => {
+	if(!done()) {
+		return value[i];
+	} else {
+		return unexpectedChar();
+	}
+};
+
+const nextChar = () : string => {
+	let c = "";
+	if(check('%')) {
+		next();
+		; parse magic terminal char
+	} else {
+		c = value[i];
+		next();
+	}
+	return c;
+};
+
+;; parse magic terminal char
+c = magicChar();
+next();
+
+;; parse terminal char
+token(RuleCharToken, nextChar());
+
+;; parse rule functions
+const nonTerminal = () => {
+	let name = "";
+	while(check(/[0-9a-zA-Z]/)) {
+		name += value[i];
+		next();
+	}
+	; create non terminal token
+};
+
+;; token class
+class RuleNonTerminalToken extends RuleToken {
+	name: string;
+	constructor(name : string) { super(); this.name = name; }
+}
+
+;; create non terminal token
+token(RuleNonTerminalToken, name);
+
+;; parse non terminal
+nonTerminal();
+
+;; rule token operator
+OneOrMore,
+ZeroOrMore,
+ZeroOrOne,
+
+;; parse rule functions
+const setOp = (op : RuleTokenOperator) => {
+	ruleTokens[ruleTokens.length-1].op = op;
+};
+
+;; parse operator if present
+if(check('+')) { 
+	setOp(RuleTokenOperator.OneOrMore); 
+	next();
+}
+else if(check('*')) { 
+	setOp(RuleTokenOperator.ZeroOrMore); 
+	next();
+}
+else if(check('?')) { 
+	setOp(RuleTokenOperator.ZeroOrOne); 
+	next();
+}
+
+;; parse terminal group
+if(check('^')) {
+	next();
+	const negative = true;
+	; parse terminal group inside
+} else {
+	const negative = false;
+	; parse terminal group inside
+}
+
+;; parse terminal group inside
+const charset  = new Set<string>();
+while(checkNot(']')) {
+	const c = nextChar();
+	if(check('-')) {
+		next();
+		; parse terminal range
+	} else {
+		charset.add(c);
+	}
+}
+; create terminal group token
+
+;; parse terminal range
+let startRange = c.codePointAt(0) as number;
+let stopRange = nextChar().codePointAt(0) as number;
+
+if(startRange > stopRange) {
+	[stopRange, startRange] = [startRange, stopRange]
+}
+
+for(let j=startRange; j<=stopRange; ++j) {
+	charset.add(String.fromCodePoint(j));
+}
+
+;; token class
+class RuleCharsetToken extends RuleToken {
+	charset: Set<string>;
+	negative: boolean;
+	constructor(charset : Set<string>, negative: boolean) { 
+		super(); 
+		this.charset = charset; 
+		this.negative = negative; 
+	}
+}
+
+;; create terminal group token
+token(RuleCharsetToken, charset, negative);
+
+;; rule class
+class Rule {
+	lhs: string;
+	rhs: RuleToken[];
+	action: (...args: any[]) => any;
+
+	constructor(lhs: string, rhs: RuleToken[], action: (...args: any[]) => any) {
+		this.lhs = lhs;
+		this.rhs = rhs;
+		this.action = action;
+	}
+};
+
+;; rule list
+rules : Rule[] = [];
+
+;; add rule to rule list
+const rule = new Rule(key, ruleTokens, rhs[1]);
+source.rules.push(rule);
+
+;; capture boolean
+capture: boolean;
+
+;; parse rule functions
+const setCapture = (capture: boolean) => {
+	ruleTokens[ruleTokens.length-1].capture = capture;
+};
+
+;; set capture to true
+setCapture(true);
+
+;; set capture to false
+setCapture(false);
+
+;; parser class
+class Parser {
+	; parser variables
+
+	constructor(grammar : Grammar) {
+		; check that start rule is defined
+		; init non terminal usage set
+		for(const rule of grammar.rules) {
+			; check that all non terminals are defined
+		}
+		; check that defined non terminal are used
+		; save grammar in parser
+	}
+
+	parse(str: string) : any {
+		; split string into single characters
+		while(true) {
+			let matched = false;
+			; match rule in order
+			if(!matched) {
+				break;
+			}
+		}
+		; check that result is starting rule and return
+	}
+}
+
+;; create parser
+const parser = new Parser(g);
+
+;; check defined function
+isDefined(name: string) : boolean {
+	for(const rule of this.rules) {
+		if(rule.lhs == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+;; check that start rule is defined
+if(!grammar.isDefined(grammar.startRule)) {
+	throw new Error(`Start rule '${grammar.startRule}' is not defined.`);
+}
+
+;; check that all non terminals are defined
+for(const ruleToken of rule.rhs) {
+	if(ruleToken instanceof RuleNonTerminalToken) {
+		if(!grammar.isDefined(ruleToken.name)) {
+			throw new Error(`Non-terminal '${ruleToken.name}' is not defined.`);
+		}
+		; mark non terminal as used
+	}
+}
+
+;; init non terminal usage set
+const usedNonTerminal = new Set<string>();
+
+;; mark non terminal as used
+usedNonTerminal.add(ruleToken.name);
+
+;; check that defined non terminal are used
+for(const rule of grammar.rules) {
+	if(!usedNonTerminal.has(rule.lhs)) {
+		throw new Error(`Non-terminal '${rule.lhs}' defined but not used.`);
+	}
+}
+
+;; parser variables
+grammar: Grammar;
+
+;; save grammar in parser
+this.grammar = grammar;
+
+
+;; split string into single characters
+const buffer : Array<string | [string, any]>= str.split(''); 
+
+;; match rule in order
+for(const rule of this.grammar.rules.reverse())
+{
+	; try to match rule
+
+	if(matched) {
+		break;
+	}
+}
+
+;; try to match rule
+let i = 0;
+while(i < buffer.length) {
+	; capture array
+	; greedily match rule starting at i
+	; if match replace and apply action
+}
+
+;; greedily match rule starting at i
+let all_match = true;
+let j = i;
+for(const ruleToken of rule.rhs) {
+	let matched : Array<string | [string, any]> = [];
+	while(j < buffer.length) {
+		const elem = buffer[j];
+		if(ruleToken instanceof RuleNonTerminalToken) {
+			; check match against non terminal
+		} else if(ruleToken instanceof RuleCharToken) {
+			; check match against single char
+		} else if(ruleToken instanceof RuleCharsetToken) {
+			; check match against charset
+		}
+		; stop depending on rule token operator
+	}
+	; if not enough match break
+	; if asked save capture
+}
+
+;; check match against non terminal
+if(typeof elem == "string" || elem[0] != ruleToken.name) {
+	break;
+}
+matched.push(elem[1]);
+++j;
+
+;; check match against single char
+if(typeof elem != "string" || elem != ruleToken.c) {
+	break;
+}
+matched.push(elem);
+++j;
+
+;; check match against charset
+if(typeof elem != "string" || !ruleToken.charset.has(elem)) {
+	break;
+}
+matched.push(elem);
+++j;
+
+;; stop depending on rule token operator
+if(ruleToken.op == RuleTokenOperator.None || ruleToken.op == RuleTokenOperator.ZeroOrOne) {
+	break;
+}
+
+;; if not enough match break
+switch(ruleToken.op) {
+case RuleTokenOperator.None:
+	all_match = matched.length == 1;
+	break;
+case RuleTokenOperator.OneOrMore:
+	all_match = matched.length >= 1;
+	break;
+case RuleTokenOperator.ZeroOrMore:
+	all_match = matched.length >= 0;
+	break;
+case RuleTokenOperator.ZeroOrOne:
+	all_match = matched.length <= 1;
+	break;
+}
+
+if(!all_match) {
+	break;
+}
+
+;; capture array
+const captures : any[] = []; 
+
+;; if asked save capture
+if(ruleToken.capture) {
+	; if rule token is charset or char concate everything
+	; otherwise non terminal if single add flatten
+	; otherwise just add every matched
+}
+
+;; if rule token is charset or char concate everything
+if(ruleToken instanceof RuleCharToken || ruleToken instanceof RuleCharsetToken) {
+	captures.push(matched.join(""));
+}
+
+;; otherwise non terminal if single add flatten
+else if(ruleToken instanceof RuleNonTerminalToken && matched.length == 1) {
+	captures.push(matched[0]);
+}
+
+;; otherwise just add every matched
+else {
+	captures.push(...matched);
+}
+
+;; if match replace and apply action
+if(all_match) {
+	; apply action with captures
+	; add matched non terminal with action result and remove old
+	matched = true;
+} 
+++i;
+
+;; apply action with captures
+const resultAction = rule.action(captures);
+
+;; add matched non terminal with action result and remove old
+buffer.splice(i,j-i,[rule.lhs, resultAction]);
+
+;; check that result is starting rule and return
+console.log(buffer);
+
+;; test parser
+const result = parser.parse("10*3+10");
