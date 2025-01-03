@@ -1,7 +1,7 @@
 Simple Parser
 -------------
 
-A simple parser
+A simple parser generator
 
 ```typescript
 const g = new Grammar("Expr"); // 'Expr' is the starting rule
