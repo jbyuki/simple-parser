@@ -36,7 +36,7 @@ g["ws"] = ["'% '", (_: any[]) => { }];
 
 
 const parser = new Parser(g);
-const result = parser.parse("2*5+2*6"); // => [["Expr", 22]] // => 
+const result = parser.parse("2*5+2*6"); // => [["Expr", 22]]
 [ [ "Top", -11 ] ]
 ```
 
