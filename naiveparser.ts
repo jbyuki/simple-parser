@@ -488,5 +488,5 @@ g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
 
 const parser = new Parser(g);
 
-const result = parser.parse("10*3+10");
+const result = parser.parse("2*5+2*6");
 

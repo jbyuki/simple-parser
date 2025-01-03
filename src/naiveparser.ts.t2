@@ -582,4 +582,4 @@ buffer.splice(i,j-i,[rule.lhs, resultAction]);
 console.log(buffer);
 
 ;; test parser
-const result = parser.parse("10*3+10");
+const result = parser.parse("2*5+2*6");
