@@ -388,16 +388,26 @@ class Parser {
 								++j;
 
 							} else if(ruleToken instanceof RuleCharToken) {
-								if(typeof elem != "string" || elem != ruleToken.c) {
+								if(typeof elem != "string" ||  elem != ruleToken.c) {
 									break;
 								}
 								matched.push(elem);
 								++j;
 
 							} else if(ruleToken instanceof RuleCharsetToken) {
-								if(typeof elem != "string" || !ruleToken.charset.has(elem)) {
+								if(typeof elem != "string") {
 									break;
 								}
+								if(!ruleToken.negative) {
+									if(!ruleToken.charset.has(elem)) {
+										break;
+									}
+								} else {
+									if(ruleToken.charset.has(elem)) {
+										break;
+									}
+								}
+
 								matched.push(elem);
 								++j;
 
