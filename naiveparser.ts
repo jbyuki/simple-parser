@@ -308,6 +308,17 @@ class Grammar {
 
 				}
 
+				let possiblyEmpty = true;
+				for(const ruleToken of ruleTokens) {
+					if(ruleToken.op == RuleTokenOperator.None || ruleToken.op == RuleTokenOperator.OneOrMore) {
+						possiblyEmpty = false;
+						break;
+					}
+				}
+
+				if(possiblyEmpty) {
+					throw new Error(`Possibly empty rule #${source.ruleCounter} '${rhs[0]}'`);
+				}
 				const rule = new Rule(key, ruleTokens, rhs[1]);
 				source.rules.push(rule);
 
@@ -474,7 +485,7 @@ class Parser {
 				break;
 			}
 		}
-		console.log(buffer);
+		return buffer;
 
 	}
 }
@@ -488,5 +499,7 @@ g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
 
 const parser = new Parser(g);
 
-const result = parser.parse("2*5+2*6");
+const result = parser.parse("2*5+3*4");
+console.log(result);
+
 

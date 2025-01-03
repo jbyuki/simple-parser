@@ -19,6 +19,7 @@ class Grammar {
 			set(source, key: string, rhs: [string, (...args: any[]) => any]) {
 				const value = rhs[0];
 				; parse rule
+				; check if rule cannot be empty
 				; add rule to rule list
 				; add rule counter
 				return true;
@@ -579,7 +580,21 @@ const resultAction = rule.action(captures);
 buffer.splice(i,j-i,[rule.lhs, resultAction]);
 
 ;; check that result is starting rule and return
-console.log(buffer);
+return buffer;
 
 ;; test parser
-const result = parser.parse("2*5+2*6");
+const result = parser.parse("2*5+3*4");
+console.log(result);
+
+;; check if rule cannot be empty
+let possiblyEmpty = true;
+for(const ruleToken of ruleTokens) {
+	if(ruleToken.op == RuleTokenOperator.None || ruleToken.op == RuleTokenOperator.OneOrMore) {
+		possiblyEmpty = false;
+		break;
+	}
+}
+
+if(possiblyEmpty) {
+	throw new Error(`Possibly empty rule #${source.ruleCounter} '${rhs[0]}'`);
+}
