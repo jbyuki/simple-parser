@@ -1,7 +1,7 @@
 Simple Parser
 -------------
 
-A simple parser that uses a grammar which is nor CFG nor PEG.
+A simple parser
 
 ```typescript
 const g = new Grammar("Expr"); // 'Expr' is the starting rule
