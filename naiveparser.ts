@@ -350,6 +350,7 @@ class Parser {
 		}
 
 		const usedNonTerminal = new Set<string>();
+		usedNonTerminal.add(grammar.startRule);
 
 		for(const rule of grammar.rules) {
 			for(const ruleToken of rule.rhs) {
@@ -379,8 +380,9 @@ class Parser {
 
 		while(true) {
 			let matched = false;
-			for(const rule of this.grammar.rules.reverse())
+			for(let m = this.grammar.rules.length-1; m>=0; --m)
 			{
+				const rule = this.grammar.rules[m];
 				let i = 0;
 				while(i < buffer.length) {
 					const captures : any[] = []; 
@@ -490,16 +492,21 @@ class Parser {
 	}
 }
 
-const g = new Grammar("Expr");
-g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
+const g = new Grammar("Top");
+g["Top"] = ["ws* (Expr) ws*", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["(Expr) ws* '+' ws* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) ws* '-' ws* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Expr"] = ["(Expr) ws* '*' ws* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["(Expr) ws* '/' ws* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Expr"] = ["'(' ws* (Expr) ws* ')'", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["'(' '-' (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
+g["ws"] = ["'% '", (_: any[]) => { }];
 
 const parser = new Parser(g);
 
-const result = parser.parse("2*5+3*4");
+const result = parser.parse("(-2) * 4 - 3");
 console.log(result);
 
 
