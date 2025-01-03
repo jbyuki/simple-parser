@@ -319,6 +319,7 @@ class Grammar {
 				if(possiblyEmpty) {
 					throw new Error(`Possibly empty rule #${source.ruleCounter} '${rhs[0]}'`);
 				}
+
 				const rule = new Rule(key, ruleTokens, rhs[1]);
 				source.rules.push(rule);
 
@@ -467,11 +468,21 @@ class Parser {
 					}
 
 					if(all_match) {
-						const resultAction = rule.action(captures);
+						let skipReplace = false;
+						if(j-i == 1) {
+							const elem = buffer[i];
+							if(typeof elem != "string" && elem[0] == rule.lhs) {
+								skipReplace = true;
+							}
+						}
 
-						buffer.splice(i,j-i,[rule.lhs, resultAction]);
+						if(!skipReplace) {
+							const resultAction = rule.action(captures);
 
-						matched = true;
+							buffer.splice(i,j-i,[rule.lhs, resultAction]);
+
+							matched = true;
+						}
 					} 
 					++i;
 
@@ -489,24 +500,24 @@ class Parser {
 		}
 		return buffer;
 
+
 	}
 }
 
-const g = new Grammar("Top");
-g["Top"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["(Expr) s* '+' s* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) s* '-' s* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
-g["Expr"] = ["(Expr) s* '*' s* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["(Expr) s* '/' s* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
-g["Expr"] = ["'(' s* (Expr) s* ')'", (cap : any[]) => { return cap[0]; }];
+const g = new Grammar("Expr");
+g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) '-' (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["(Expr) '/' (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["'(' '-' (Num) ')'", (cap : any[]) => { return -cap[0]; }];
+g["Expr"] = ["'(' s* '-' s* (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
 g["s"] = ["' '", (_: any[]) => { }];
 
 const parser = new Parser(g);
 
-const result = parser.parse("(-2) * 4 - 3");
+const result = parser.parse("3 * 3 / (2 * (-2))");
 console.log(result);
-
 

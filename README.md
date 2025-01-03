@@ -22,21 +22,20 @@ Work in progress.
 More complex calculator:
 
 ```typescript
-const g = new Grammar("Top");
-g["Top"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["(Expr) s* '+' s* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) s* '-' s* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
-g["Expr"] = ["(Expr) s* '*' s* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["(Expr) s* '/' s* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
-g["Expr"] = ["'(' s* (Expr) s* ')'", (cap : any[]) => { return cap[0]; }];
+const g = new Grammar("Expr");
+g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) '-' (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["(Expr) '/' (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["'(' '-' (Num) ')'", (cap : any[]) => { return -cap[0]; }];
+g["Expr"] = ["'(' s* '-' s* (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
 g["s"] = ["' '", (_: any[]) => { }];
 
-
 const parser = new Parser(g);
-const result = parser.parse("(-2) * 4 - 3"); // => [ [ "Top", -11 ] ]
+const result = parser.parse("3 * 3 / (2 * (-2))"); // => [["Expr", -2.25]]
 ```
 
 Todo

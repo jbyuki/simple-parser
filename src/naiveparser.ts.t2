@@ -31,15 +31,15 @@ class Grammar {
 }
 
 ;; layout grammar rules
-const g = new Grammar("Top");
-g["Top"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["(Expr) s* '+' s* (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
-g["Expr"] = ["(Expr) s* '-' s* (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
-g["Expr"] = ["(Expr) s* '*' s* (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
-g["Expr"] = ["(Expr) s* '/' s* (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
-g["Expr"] = ["'(' s* (Expr) s* ')'", (cap : any[]) => { return cap[0]; }];
+const g = new Grammar("Expr");
+g["Expr"] = ["(Expr) '+' (Expr)", (cap : any[]) => { return cap[0] + cap[1]; }];
+g["Expr"] = ["(Expr) '-' (Expr)", (cap : any[]) => { return cap[0] - cap[1]; }];
+g["Expr"] = ["(Expr) '*' (Expr)", (cap : any[]) => { return cap[0] * cap[1]; }];
+g["Expr"] = ["(Expr) '/' (Expr)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Expr"] = ["'(' (Expr) ')'", (cap : any[]) => { return cap[0]; }];
+g["Expr"] = ["s* (Expr) s*", (cap : any[]) => { return cap[0]; }];
 g["Expr"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
-g["Expr"] = ["'(' '-' (Num) ')'", (cap : any[]) => { return -cap[0]; }];
+g["Expr"] = ["'(' s* '-' s* (Num) ')'", (cap : any[]) => { return -cap[0]; }];
 g["Num"] = ["('[0-9]'+)", (cap: any[]) => { return parseInt(cap[0]); }];
 g["s"] = ["' '", (_: any[]) => { }];
 
@@ -574,11 +574,23 @@ else {
 
 ;; if match replace and apply action
 if(all_match) {
-	; apply action with captures
-	; add matched non terminal with action result and remove old
-	matched = true;
+	let skipReplace = false;
+	; if replacement is same skip
+	if(!skipReplace) {
+		; apply action with captures
+		; add matched non terminal with action result and remove old
+		matched = true;
+	}
 } 
 ++i;
+
+;; if replacement is same skip
+if(j-i == 1) {
+	const elem = buffer[i];
+	if(typeof elem != "string" && elem[0] == rule.lhs) {
+		skipReplace = true;
+	}
+}
 
 ;; apply action with captures
 const resultAction = rule.action(captures);
@@ -589,9 +601,6 @@ buffer.splice(i,j-i,[rule.lhs, resultAction]);
 ;; check that result is starting rule and return
 return buffer;
 
-;; test parser
-const result = parser.parse("(-2) * 4 - 3");
-console.log(result);
 
 ;; check if rule cannot be empty
 let possiblyEmpty = true;
@@ -605,3 +614,7 @@ for(const ruleToken of ruleTokens) {
 if(possiblyEmpty) {
 	throw new Error(`Possibly empty rule #${source.ruleCounter} '${rhs[0]}'`);
 }
+
+;; test parser
+const result = parser.parse("3 * 3 / (2 * (-2))");
+console.log(result);
