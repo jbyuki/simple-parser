@@ -509,6 +509,7 @@ g["Exp"] = ["(Exp) '+' (Exp)", (cap : any[]) => { return cap[0] + cap[1]; }];
 g["Exp"] = ["(Exp) '-' (Exp)", (cap : any[]) => { return cap[0] - cap[1]; }];
 g["Exp"] = ["(Exp) '*' (Exp)", (cap : any[]) => { return cap[0] * cap[1]; }];
 g["Exp"] = ["(Exp) '/' (Exp)", (cap : any[]) => { return cap[0] / cap[1]; }];
+g["Exp"] = ["(Exp) '^' (Exp)", (cap : any[]) => { return cap[0] ** cap[1]; }];
 g["Exp"] = ["'(' (Exp) ')'", (cap : any[]) => { return cap[0]; }];
 g["Exp"] = ["s* (Exp) s*", (cap : any[]) => { return cap[0]; }];
 g["Exp"] = ["(Num)", (cap : any[]) => { return cap[0]; }];
@@ -518,6 +519,6 @@ g["s"]   = ["' '", (_: any[]) => { }];
 
 const parser = new Parser(g);
 
-const result = parser.parse("3 * 3 / (2 * (-2))");
+const result = parser.parse("(3*2)^3");
 console.log(result);
 
